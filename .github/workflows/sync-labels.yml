@@ -18,7 +18,7 @@ jobs:
       - uses: EndBug/label-sync@v2
         with:
           # If you want to use a config file, you can put its path or URL here, multiple files are also allowed (more info in the paragraphs below)
-          config-file: '.Projetos-sem-repositori/labels.yml'
+          config-file: 'labels.yml'
 
           # If you're using a private source repo or a URL that needs an 'Authorization' header, you'll need to add a custom token for the action to read it
           request-token: ${{ secrets.PERSONAL_TOKEN }}
