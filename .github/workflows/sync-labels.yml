@@ -1,20 +1,36 @@
-name: Sync Labels
-
+name: Sync labels
 on:
+  # You can run this with every type of event, but it's better to run it only when you actually need it.
   workflow_dispatch:
-  schedule:
-    - cron: "0 3 * * *" # Runs daily at 03:00 UTC
+
+permissions:
+  issues: write
 
 jobs:
-  sync:
+  labels:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Sync labels
-        uses: EndBug/label-sync@v2
+      - uses: actions/checkout@v4
         with:
-          config-file: "labels.yml"
+          sparse-checkout: .github/labels.yml
+
+      - uses: EndBug/label-sync@v2
+        with:
+          # If you want to use a config file, you can put its path or URL here, multiple files are also allowed (more info in the paragraphs below)
+          config-file: labels.yml
+
+          # If you want to use a source repo, you can put is name here (only the owner/repo format is accepted)
+          source-repo: owner/repo
+
+          # If you're using a private source repo or a URL that needs an 'Authorization' header, you'll need to add a custom token for the action to read it
+          request-token: ${{ secrets.PERSONAL_TOKEN }}
+
+          # If you want to delete any additional label, set this to true
+          delete-other-labels: false
+
+          # If you want the action just to show you the preview of the changes, without actually editing the labels, set this to true
+          dry-run: true
+
+          # You can change the token used to change the labels, this is the default one
           token: ${{ secrets.PERSONAL_TOKEN }}
