@@ -1,48 +1,33 @@
-name: Sync labels across org
-
+name: Sync labels
 on:
-  workflow_dispatch:
+  # You can run this with every type of event, but it's better to run it only when you actually need it.  
+  workflow_call: {}
 
 permissions:
-  contents: read
   issues: write
 
 jobs:
-  sync-labels:
+  labels:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/labels.yml
 
-      - name: Install GitHub CLI manually
-        run: |
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-          sudo apt update
-          sudo apt install gh -y || c
+      - uses: EndBug/label-sync@v2
+        with:
+          # If you want to use a config file, you can put its path or URL here, multiple files are also allowed (more info in the paragraphs below)
+          config-file: './labels.yml'
 
-      - name: Authenticate GitHub CLI
-        env:
-          GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        run: |
-          gh auth setup-git
-          gh auth status
+          # If you're using a private source repo or a URL that needs an 'Authorization' header, you'll need to add a custom token for the action to read it
+          request-token: ${{ secrets.PERSONAL_TOKEN }}
 
-      - name: Get repos and apply labels
-        env:
-          GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        run: |
-          ORG="your-org-name"
-          LABEL_CONFIG=".github/labels.yml"
 
-          # You can enhance this to read labels from the config if needed
-          gh repo list $ORG --limit 1000 --json name -q '.[].name' | while read repo; do
-            echo "Syncing labels for $ORG/$repo"
-            gh api \
-              --method POST \
-              -H "Accept: application/vnd.github+json" \
-              /repos/$ORG/$repo/labels \
-              -f name="bug" \
-              -f color="f29513" \
-              -f description="Something isn't working" || true
-          done
+          # If you want to delete any additional label, set this to true
+          delete-other-labels: true
+
+          # If you want the action just to show you the preview of the changes, without actually editing the labels, set this to true
+          dry-run: false
+
+          # You can change the token used to change the labels, this is the default one
+          token: ${{ secrets.PERSONAL_TOKEN2 }}
