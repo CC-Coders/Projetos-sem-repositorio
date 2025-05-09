@@ -18,8 +18,8 @@ jobs:
       - uses: EndBug/label-sync@v2
         with:
           # If you want to use a config file, you can put its path or URL here, multiple files are also allowed (more info in the paragraphs below)
-          config-file: labels.yml
-
+          config-file: 'https://raw.githubusercontent.com/EndBug/labels/main/labels.yml'
+          
           # If you want to use a source repo, you can put is name here (only the owner/repo format is accepted)
           source-repo: owner/repo
 
